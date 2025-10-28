@@ -143,6 +143,9 @@ public:
         return os;
     }
 
+    //Friend operator to change name
+    friend void changeName(Student& student, const string& newName);
+
     void resetCourses()
     {
         delete[] courseList;
@@ -151,7 +154,31 @@ public:
     }
 };
 
-void testStudentClass(int &numCourses)
+void changeName(Student& student, const string& newName)
+{
+    student.name = newName;
+}
+
+void resetCourses(Student& student)
+{
+    student.resetCourses();
+}
+
+Student AskForSecondStudent(int& numCourses,Student& s1)
+{
+    string name = enterName();
+    Student s2 = s1;
+	changeName(s2, name);
+
+	return s2;
+}
+
+void displayStudent(const Student& s)
+{
+    s.print();
+}
+
+Student testStudentClass(int &numCourses)
 {
     string name = enterName();
     // enterCourses returns a dynamically allocated array and sets numCourses
@@ -162,7 +189,19 @@ void testStudentClass(int &numCourses)
     delete[] courses;
 
     // Show result
-    s1.print();
+	return s1;
+}
+
+void Begin()
+{
+    cout << "Sequence of Events:\n\n";
+    cout << "1. Register 1st Student\n";
+    cout << "2. Display 1st Student's Data\n";
+    cout << "3. Register 2nd Student\n";
+    cout << "4. Reset 1st Student's Courses\n";
+    cout << "5. Display 2nd Student's Data\n";
+
+    cout << "4. Exit\n";
 }
 
 string enterName()
@@ -171,7 +210,7 @@ string enterName()
     while (true)
     {
         try {
-            cout << "Enter student name: ";
+            cout << "Enter new student name: ";
             getline(cin, name);
             break;
         }
@@ -244,10 +283,34 @@ string* enterCourses(int& numCourses) {
 
 int main()
 {
-    int numCourses = 0;
-    // run interactive test (optional)
-    testStudentClass(numCourses);
+	Begin();
+	cout << "-----------------------\n\n";
 
-    cout << "Hello World!\n";
+    int numCourses = 0;
+    cout << "Input first Student info \n";
+    cout << "-----------------------\n";
+    Student firstStudent = testStudentClass(numCourses);
+    cout << "\n Display first Student info \n";
+    cout << "-----------------------\n\n";
+    displayStudent(firstStudent);
+    cout << "\n Create Second Student\n";
+    cout << "-----------------------\n\n";
+	Student secondStudent = AskForSecondStudent(numCourses, firstStudent);
+    cout << "\n Display Second Student\n";
+    cout << "-----------------------\n\n";
+	displayStudent(secondStudent);
+    cout << "\n Reset Courses and Display First Student\n";
+    cout << "-----------------------\n\n";
+	resetCourses(firstStudent);
+	displayStudent(firstStudent);
+    cout << "\n Show deep copy took place by showing second student's info\n";
+    cout << "-----------------------\n\n";
+    displayStudent(secondStudent);
+
+    Student thirdStudent = secondStudent;
+
+    thirdStudent << secondStudent;
+
+   
     return 0;
 }
