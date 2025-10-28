@@ -283,34 +283,44 @@ string* enterCourses(int& numCourses) {
 
 int main()
 {
-	Begin();
-	cout << "-----------------------\n\n";
+    char restart = 'N';
+    do
+    {
+        int numCourses = 0;
+        cout << "Input first Student info \n";
+        cout << "-----------------------\n";
+        Student firstStudent = testStudentClass(numCourses);
+        cout << "\n Display first Student info \n";
+        cout << "-----------------------\n\n";
+        displayStudent(firstStudent);
+        cout << "\n Create Second Student\n";
+        cout << "-----------------------\n\n";
+        Student secondStudent = AskForSecondStudent(numCourses, firstStudent);
+        cout << "\n Display Second Student\n";
+        cout << "-----------------------\n\n";
+        displayStudent(secondStudent);
+        cout << "\n Reset Courses and Display First Student\n";
+        cout << "-----------------------\n\n";
+        resetCourses(firstStudent);
+        displayStudent(firstStudent);
+        cout << "\n Show deep copy took place by showing second student's info\n";
+        cout << "-----------------------\n\n";
+        displayStudent(secondStudent);
 
-    int numCourses = 0;
-    cout << "Input first Student info \n";
-    cout << "-----------------------\n";
-    Student firstStudent = testStudentClass(numCourses);
-    cout << "\n Display first Student info \n";
-    cout << "-----------------------\n\n";
-    displayStudent(firstStudent);
-    cout << "\n Create Second Student\n";
-    cout << "-----------------------\n\n";
-	Student secondStudent = AskForSecondStudent(numCourses, firstStudent);
-    cout << "\n Display Second Student\n";
-    cout << "-----------------------\n\n";
-	displayStudent(secondStudent);
-    cout << "\n Reset Courses and Display First Student\n";
-    cout << "-----------------------\n\n";
-	resetCourses(firstStudent);
-	displayStudent(firstStudent);
-    cout << "\n Show deep copy took place by showing second student's info\n";
-    cout << "-----------------------\n\n";
-    displayStudent(secondStudent);
+        Student thirdStudent = secondStudent;
 
-    Student thirdStudent = secondStudent;
+        cout << "\nThird student after assignment (third = second):\n";
+        cout << "------------------------------------------------\n";
+        displayStudent(thirdStudent);
 
-    thirdStudent << secondStudent;
+        cout << "\nWould you like to restart the sequence? (Y to restart, any other key to exit): ";
+        if (!(cin >> restart))
+            restart = 'N';
+		cin.ignore(numeric_limits<streamsize>::max(), '\n'); //Used AI for input cleanup
+        cout << "\n";
+    } while (restart == 'y' || restart == 'Y');
 
+    cout << "Program exiting.\n";
    
     return 0;
 }
