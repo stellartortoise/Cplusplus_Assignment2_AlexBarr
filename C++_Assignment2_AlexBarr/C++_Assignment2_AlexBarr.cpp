@@ -39,8 +39,8 @@ public:
 	// Parameterized constructor with course list
     //template <size_t N> //I had to use AI for this one; it seems this is the only way I can figure out how to dynamically
 	//change the num courses based on the size of the input array.
-    Student(string studentName, const string &coursesList)
-        : name(studentName), numCourses(numCourses), courseList(coursesList)
+    Student(string studentName, int size, const string &coursesList)
+        : name(studentName), numCourses(size), courseList(coursesList)
     {
         //if (numCourses > 0)
         //{
@@ -67,16 +67,26 @@ public:
     // Assignment operator (copy-and-swap for strong exception safety)
     Student& operator=(const Student& other)
     {
+        if (this == &other) return *this;
 
-        if (this != &other)
-        {
-			Student temp(other); 
-			name = temp.name;
-			numCourses = temp.numCourses;
-			delete[] courseList;
-			courseList = temp.courseList; 
-		}
-		return *this;
+        // Allocate and copy first (may throw) so we don't modify 'this' on failure
+        string* newList = nullptr;
+        if (other.numCourses > 0) {
+            newList = new string[other.numCourses];
+            for (int i = 0; i < other.numCourses; ++i)
+                newList[i] = other.courseList[i];
+        }
+
+        // Copy name into a local so name construction can't leave object in a partially updated state
+        string newName = other.name;
+
+        // All allocations/copies succeeded -> commit changes
+        delete[] courseList;
+        courseList = newList;
+        numCourses = other.numCourses;
+        name = std::move(newName);
+
+        return *this;
     }
 
     // Destructor
@@ -144,11 +154,11 @@ public:
 
 };
 
-void testStudentClass()
+void testStudentClass(int &numCourses)
 {
 	string name = enterName();
-	string courses[] = enterCourses();
-    Student s1(name, courses);
+	string courses[] = enterCourses(numCourses);
+    Student s1(name, numCourses, courses);
 }
 
 string enterName()
@@ -231,5 +241,6 @@ string* enterCourses(int& numCourses) {
 
 int main()
 {
+	int numCourses = 0;
     cout << "Hello World!\n";
 }
