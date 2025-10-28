@@ -6,6 +6,7 @@
 using std::string;
 
 string enterName();
+string enterCourse();
 string* enterCourses(int& numCourses);
 
 #endif // HEADER_H
