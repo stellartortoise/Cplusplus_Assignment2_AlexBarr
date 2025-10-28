@@ -22,13 +22,13 @@ public:
     {
     }
 
-	//String Constructor
+    // String Constructor
     Student(const string& studentName)
         : name(studentName), numCourses(0), courseList(nullptr)
     {
     }
 
-    // Parameterized constructor
+    // Parameterized constructor (count only)
     Student(const string& studentName, int courses)
         : name(studentName), numCourses(courses), courseList(nullptr)
     {
@@ -36,18 +36,17 @@ public:
             courseList = new string[numCourses];
     }
 
-	// Parameterized constructor with course list
-    //template <size_t N> //I had to use AI for this one; it seems this is the only way I can figure out how to dynamically
-	//change the num courses based on the size of the input array.
-    Student(string studentName, int size, const string &coursesList)
-        : name(studentName), numCourses(size), courseList(coursesList)
+    // Parameterized constructor with course list (pointer + size)
+    // Caller provides a C-style dynamic array (string*) and its size.
+    Student(const string& studentName, int size, const string* coursesList)
+        : name(studentName), numCourses(size), courseList(nullptr)
     {
-        //if (numCourses > 0)
-        //{
-        //    courseList = new string[numCourses];
-        //    for (int i = 0; i < numCourses; ++i)
-        //        courseList[i] = coursesList[i]; // deep copy from provided array
-        //}
+        if (numCourses > 0 && coursesList != nullptr)
+        {
+            courseList = new string[numCourses];
+            for (int i = 0; i < numCourses; ++i)
+                courseList[i] = coursesList[i]; // deep copy from provided array
+        }
     }
 
     // Copy constructor
@@ -64,7 +63,7 @@ public:
         }
     }
 
-    // Assignment operator (copy-and-swap for strong exception safety)
+    // Assignment operator (deep copy, exception-safe)
     Student& operator=(const Student& other)
     {
         if (this == &other) return *this;
@@ -77,10 +76,10 @@ public:
                 newList[i] = other.courseList[i];
         }
 
-        // Copy name into a local so name construction can't leave object in a partially updated state
+        // Copy name into a local so name assignment won't leave object partially updated
         string newName = other.name;
 
-        // All allocations/copies succeeded -> commit changes
+        // Commit changes
         delete[] courseList;
         courseList = newList;
         numCourses = other.numCourses;
@@ -105,7 +104,7 @@ public:
         for (int i = 0; i < numCourses; i++)
         {
             newList[i] = courseList[i];
-        }           
+        }
 
         newList[numCourses] = course;
         delete[] courseList;
@@ -113,7 +112,7 @@ public:
         ++numCourses;
     }
 
-    void print()
+    void print() const
     {
         cout << "Student Name: " << name << endl;
         cout << "Number of Courses: " << numCourses << endl;
@@ -122,10 +121,10 @@ public:
         {
             if (i == numCourses - 1)
                 cout << "\t" << courseList[i] << " ";
-			else
+            else
                 cout << "\t" << courseList[i] << ",\n";
         }
-		cout << endl;
+        cout << endl;
     }
 
     // Overloaded << operator 
@@ -137,28 +136,33 @@ public:
         for (int i = 0; i < student.numCourses; i++)
         {
             if (i == student.numCourses - 1)
-                cout << "\t" << student.courseList[i] << " ";
+                os << "\t" << student.courseList[i] << " ";
             else
-                cout << "\t" << student.courseList[i] << ",\n";
+                os << "\t" << student.courseList[i] << ",\n";
         }
         return os;
-	}
+    }
 
     void resetCourses()
     {
-        numCourses = 0;
         delete[] courseList;
         courseList = nullptr;
-	}
-
-
+        numCourses = 0;
+    }
 };
 
 void testStudentClass(int &numCourses)
 {
-	string name = enterName();
-	string courses[] = enterCourses(numCourses);
+    string name = enterName();
+    // enterCourses returns a dynamically allocated array and sets numCourses
+    string* courses = enterCourses(numCourses);
     Student s1(name, numCourses, courses);
+
+    // Student made a deep copy; free the temporary array
+    delete[] courses;
+
+    // Show result
+    s1.print();
 }
 
 string enterName()
@@ -180,7 +184,7 @@ string enterName()
 
 string enterCourse()
 {
-	//Get course name from user
+    // Get course name from user
     string course;
     while (true)
     {
@@ -193,8 +197,7 @@ string enterCourse()
             cerr << "Incorrect Input: " << e.what() << endl;
         }
     }
-	return course;
-
+    return course;
 }
 
 string* enterCourses(int& numCourses) {
@@ -241,6 +244,10 @@ string* enterCourses(int& numCourses) {
 
 int main()
 {
-	int numCourses = 0;
+    int numCourses = 0;
+    // run interactive test (optional)
+    testStudentClass(numCourses);
+
     cout << "Hello World!\n";
+    return 0;
 }
