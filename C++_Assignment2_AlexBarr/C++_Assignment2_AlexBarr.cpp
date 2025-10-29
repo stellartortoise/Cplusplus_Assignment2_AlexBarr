@@ -1,5 +1,5 @@
-// C++_Assignment2_AlexBarr.cpp : This file contains the 'main' function. Program execution begins and ends there.
-//
+// C++_Assignment2_AlexBarr.cpp : Main entry point for Student class demonstration.
+// This program allows user input for student names and courses, demonstrates deep copy, and supports looping.
 
 #include <iostream>
 #include <string>
@@ -8,28 +8,33 @@
 
 using namespace std;
 
+/**
+ * @class Student
+ * @brief Manages student name and dynamic list of courses.
+ *        Supports deep copy, assignment, and course management.
+ */
 class Student
 {
 private:
-    string name;
-    int numCourses;
-    string* courseList;
+    string name;         ///< Student's name
+    int numCourses;      ///< Number of courses
+    string* courseList;  ///< Dynamic array of course names
 
 public:
-    // Default constructor
+    /// Default constructor
     Student()
         : name(""), numCourses(0), courseList(nullptr)
     {
     }
 
-    // String Constructor
+    /// Constructor with name
     Student(const string& studentName)
         : name(studentName), numCourses(0), courseList(nullptr)
     {
-        cout << "[String ctor] Created student with name='" << name << "'\n";
+        printf("\x1B[93m[String constructor] Created student with name='%s'\033[0m\t\t\n",name.c_str());
     }
 
-    // Parameterized constructor (count only)
+    /// Constructor with name and course count
     Student(const string& studentName, int courses)
         : name(studentName), numCourses(courses), courseList(nullptr)
     {
@@ -37,24 +42,23 @@ public:
             courseList = new string[numCourses];
     }
 
-    // Parameterized constructor with course list (pointer + size)
-    // Caller provides a C-style dynamic array (string*) and its size.
-    Student(const string& studentName, int size, const string* coursesList)
+    /// Constructor with name, course count, and course list
+    Student(const string& studentName, int size, const string* courseList)
         : name(studentName), numCourses(size), courseList(nullptr)
     {
-        if (numCourses > 0 && coursesList != nullptr)
+        if (numCourses > 0 && courseList != nullptr)
         {
-            courseList = new string[numCourses];
+            this->courseList = new string[numCourses];
             for (int i = 0; i < numCourses; ++i)
-                courseList[i] = coursesList[i]; // deep copy from provided array
+                this->courseList[i] = courseList[i]; // deep copy
         }
     }
 
-    // Copy constructor
+    /// Copy constructor
     Student(const Student& other)
         : name(other.name), numCourses(other.numCourses), courseList(nullptr)
     {
-        cout << "[Copy ctor] Copying student '" << other.name << "' (" << other.numCourses << " courses)\n";
+        printf("\x1B[93m[Copy ctor] Copying student '%s' (%i courses) \033[0m\t\t\n", other.name.c_str(), other.numCourses);
         if (numCourses > 0)
         {
             courseList = new string[numCourses];
@@ -65,11 +69,12 @@ public:
         }
     }
 
-    // Assignment operator (deep copy, exception-safe)
+    /// Assignment operator (deep copy, exception-safe)
     Student& operator=(const Student& other)
     {
         if (this == &other) {
-            cout << "[Assign op] Self-assignment detected for '" << name << "'\n";
+            //cout << "[Assign op] Self-assignment detected for '" << name << "'\n";
+            printf("\x1B[93m[Assign op] Self-assignment detected for '%s'\033[0m\t\t\n", name.c_str());
             return *this;
         }
 
@@ -81,7 +86,6 @@ public:
                 newList[i] = other.courseList[i];
         }
 
-        // Copy name into a local so name assignment won't leave object partially updated
         string newName = other.name;
 
         // Commit changes
@@ -90,23 +94,21 @@ public:
         numCourses = other.numCourses;
         name = std::move(newName);
 
-        cout << "[Assign op] Assigned from '" << other.name << "' (" << other.numCourses << " courses) to '" << name << "'\n";
+        //cout << "[Assign op] Assigned from '" << other.name << "' (" << other.numCourses << " courses) to '" << name << "'\n";
+        printf("\x1B[93m[Assign op] Assigned from '%s' (%i courses) to '%s'\033[0m\t\t\n", other.name.c_str(), other.numCourses, name.c_str());
         return *this;
     }
 
-    // Destructor
+    /// Destructor
     ~Student()
     {
-        cout << "[Destructor] Destroying student '" << name << "'\n";
-        if (courseList != nullptr) {
-            delete[] courseList;
-            courseList = nullptr;
-        }
+        //cout << "[Destructor] Destroying student '" << name << "'\n";
+        printf("\x1B[91m[Destructor] Destroying student ' '%s'\033[0m\t\t\n", name.c_str());
+        delete[] courseList;
+        courseList = nullptr;
     }
 
-    // Functions Test Version Control
-
-    // Add a course
+    /// Add a course to the student's list
     void addCourse(const string& course)
     {
         cout << "[addCourse] Adding course '" << course << "' to student '" << name << "'\n";
@@ -123,6 +125,7 @@ public:
         ++numCourses;
     }
 
+    /// Print student details
     void print() const
     {
         cout << "[print] Called for student '" << name << "'\n";
@@ -139,7 +142,7 @@ public:
         cout << endl;
     }
 
-    // Overloaded << operator 
+    /// Overloaded << operator for Student
     friend ostream& operator<<(ostream& os, const Student& student)
     {
         cout << "[operator<<] stream operator called for student '" << student.name << "'\n";
@@ -156,9 +159,17 @@ public:
         return os;
     }
 
-    //Friend operator to change name
+	/// Overloaded << operator to assign one Student to another... I understand this is probably bad practice, but I want to show this works
+    friend Student& operator<<(Student& student1, Student& student2)
+    {
+        student1 = student2;
+        return student1;
+	}
+
+    /// Friend function to change student name
     friend void changeName(Student& student, const string& newName);
 
+    /// Reset all courses for the student
     void resetCourses()
     {
         delete[] courseList;
@@ -180,7 +191,7 @@ void resetCourses(Student& student)
 Student AskForSecondStudent(int& numCourses,Student& s1)
 {
     string name = enterName();
-    Student s2 = s1;
+    Student s2(s1);
     changeName(s2, name);
 
     return s2;
@@ -294,78 +305,6 @@ string* enterCourses(int& numCourses) {
     return courses;
 }
 
-void demoStudentCapabilities()
-{
-    cout << "===== Student class capability demo =====\n\n";
-
-    // Default ctor
-    cout << "-- Default constructor --\n";
-    {
-        Student sDefault;
-        cout << "sDefault.print():\n";
-        sDefault.print(); // should show empty student
-    } // sDefault destroyed here
-
-    // String ctor
-    cout << "\n-- String constructor --\n";
-    {
-        Student sName("Alice");
-        cout << "Demonstrate print() and operator<< for same object:\n";
-        sName.print();
-        cout << sName << '\n'; // operator<< demonstration
-    } // sName destroyed here
-
-    // Count ctor and addCourse
-    cout << "\n-- Count constructor + addCourse --\n";
-    {
-        Student sCount("Bob", 1); // allocate room for 1 course
-        sCount.addCourse("CS101"); // demonstration of addCourse
-        sCount.addCourse("MATH200"); // resizing behavior
-        cout << "sCount via print():\n";
-        sCount.print();
-        cout << "sCount via operator<<:\n";
-        cout << sCount << '\n';
-    } // sCount destroyed here
-
-    // Pointer+size ctor, copy ctor, assignment operator, deep-copy test
-    cout << "\n-- Pointer+size ctor, copy ctor and assignment operator (deep copy test) --\n";
-    {
-        string coursesArr[] = { "Physics", "Chemistry", "English" };
-        Student sFromArray("Carol", 3, coursesArr);
-        cout << "sFromArray initial:\n";
-        sFromArray.print();
-
-        cout << "\nCopy-construct sCopy from sFromArray:\n";
-        Student sCopy = sFromArray; // copy ctor
-
-        cout << "\nDefault-construct sAssigned and assign sFromArray to it:\n";
-        Student sAssigned;
-        sAssigned = sFromArray; // assignment operator
-
-        cout << "\nModify original (sFromArray.addCourse(\"Biology\")) and show deep copy preserved:\n";
-        sFromArray.addCourse("Biology");
-
-        cout << "\nAfter modification:\nOriginal (sFromArray):\n";
-        sFromArray.print();
-
-        cout << "\nCopy (sCopy) should be unchanged:\n";
-        sCopy.print();
-
-        cout << "\nAssigned (sAssigned) should be unchanged:\n";
-        sAssigned.print();
-
-        cout << "\nDemonstrate operator<< on assigned:\n";
-        cout << sAssigned << '\n';
-
-        cout << "\nReset courses in original (sFromArray.resetCourses()) and show others unaffected:\n";
-        sFromArray.resetCourses();
-        cout << "Original after reset:\n"; sFromArray.print();
-        cout << "Copy after original reset (should still have courses):\n"; sCopy.print();
-    } // sFromArray, sCopy, sAssigned destroyed here (destructor messages appear)
-
-    cout << "\n===== Demo complete. Destructors for demo objects ran as they left scope. =====\n\n";
-}
-
 int main()
 {
     char restart = 'N';
@@ -392,16 +331,18 @@ int main()
         cout << "-----------------------\n\n";
         displayStudent(secondStudent);
 
-        Student thirdStudent = secondStudent;
+        Student thirdStudent;
+		thirdStudent = secondStudent; // Using overloaded << operator to assign secondStudent to thirdStudent
 
         cout << "\nThird student after assignment (third = second):\n";
         cout << "------------------------------------------------\n";
-        displayStudent(thirdStudent);
+        //displayStudent(thirdStudent);
+		cout << thirdStudent; // Using overloaded << operator to print thirdStudent
 
         cout << "\nWould you like to restart the sequence? (Y to restart, any other key to exit): ";
         if (!(cin >> restart))
             restart = 'N';
-        cin.ignore(numeric_limits<streamsize>::max(), '\n'); //Used AI for input cleanup
+        cin.ignore(numeric_limits<streamsize>::max(), '\n'); //Used AI for this line
         cout << "\n";
     } while (restart == 'y' || restart == 'Y');
 
@@ -409,3 +350,6 @@ int main()
 
     return 0;
 }
+
+//References:
+// https://stackoverflow.com/questions/4053837/colorizing-text-in-the-console-with-c
