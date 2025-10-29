@@ -104,7 +104,7 @@ public:
         }
     }
 
-    // Functions
+    // Functions Test Version Control
 
     // Add a course
     void addCourse(const string& course)
