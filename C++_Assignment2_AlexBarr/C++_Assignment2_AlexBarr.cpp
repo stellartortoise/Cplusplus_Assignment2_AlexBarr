@@ -58,7 +58,7 @@ public:
     Student(const Student& other)
         : name(other.name), numCourses(other.numCourses), courseList(nullptr)
     {
-        printf("\x1B[93m[Copy ctor] Copying student '%s' (%i courses) \033[0m\t\t\n", other.name.c_str(), other.numCourses);
+        printf("\x1B[93m[Copy constructor] Copying student '%s' (%i courses) \033[0m\t\t\n", other.name.c_str(), other.numCourses);
         if (numCourses > 0)
         {
             courseList = new string[numCourses];
@@ -73,8 +73,7 @@ public:
     Student& operator=(const Student& other)
     {
         if (this == &other) {
-            //cout << "[Assign op] Self-assignment detected for '" << name << "'\n";
-            printf("\x1B[93m[Assign op] Self-assignment detected for '%s'\033[0m\t\t\n", name.c_str());
+            printf("\x1B[93m[Assign operator] Self-assignment detected for '%s'\033[0m\t\t\n", name.c_str());
             return *this;
         }
 
@@ -95,7 +94,7 @@ public:
         name = std::move(newName);
 
         //cout << "[Assign op] Assigned from '" << other.name << "' (" << other.numCourses << " courses) to '" << name << "'\n";
-        printf("\x1B[93m[Assign op] Assigned from '%s' (%i courses) to '%s'\033[0m\t\t\n", other.name.c_str(), other.numCourses, name.c_str());
+        printf("\x1B[93m[Assign operator] Assigned from '%s' (%i courses) to '%s'\033[0m\t\t\n", other.name.c_str(), other.numCourses, name.c_str());
         return *this;
     }
 
@@ -103,7 +102,7 @@ public:
     ~Student()
     {
         //cout << "[Destructor] Destroying student '" << name << "'\n";
-        printf("\x1B[91m[Destructor] Destroying student ' '%s'\033[0m\t\t\n", name.c_str());
+        printf("\x1B[91m[Destructor] Destroying student '%s'\033[0m\t\t\n", name.c_str());
         delete[] courseList;
         courseList = nullptr;
     }
@@ -111,7 +110,7 @@ public:
     /// Add a course to the student's list
     void addCourse(const string& course)
     {
-        cout << "[addCourse] Adding course '" << course << "' to student '" << name << "'\n";
+        printf("\x1B[93m[addCourse] Adding course '%s' to student '%s'\033[0m\t\t\n", course.c_str(), name.c_str());
         string* newList = new string[numCourses + 1];
 
         for (int i = 0; i < numCourses; i++)
@@ -128,7 +127,7 @@ public:
     /// Print student details
     void print() const
     {
-        cout << "[print] Called for student '" << name << "'\n";
+        printf("\x1B[93m[print] Called for student '%s'\033[0m\t\t\n", name.c_str());
         cout << "Student Name: " << name << endl;
         cout << "Number of Courses: " << numCourses << endl;
         cout << "Courses: \n";
@@ -145,7 +144,7 @@ public:
     /// Overloaded << operator for Student
     friend ostream& operator<<(ostream& os, const Student& student)
     {
-        cout << "[operator<<] stream operator called for student '" << student.name << "'\n";
+        printf("\x1B[93m[operator<<] stream operator called for student '%s'\033[0m\t\t\n", student.name.c_str());
         os << "Student Name: " << student.name << "\n";
         os << "Number of Courses: " << student.numCourses << "\n";
         os << "Courses: \n";
@@ -160,11 +159,11 @@ public:
     }
 
 	/// Overloaded << operator to assign one Student to another... I understand this is probably bad practice, but I want to show this works
-    friend Student& operator<<(Student& student1, Student& student2)
-    {
-        student1 = student2;
-        return student1;
-	}
+ //   friend Student& operator<<(Student& student1, Student& student2)
+ //   {
+ //       student1 = student2;
+ //       return student1;
+	//}
 
     /// Friend function to change student name
     friend void changeName(Student& student, const string& newName);
@@ -216,18 +215,6 @@ Student testStudentClass(int &numCourses)
     return s1;
 }
 
-void Begin()
-{
-    cout << "Sequence of Events:\n\n";
-    cout << "1. Register 1st Student\n";
-    cout << "2. Display 1st Student's Data\n";
-    cout << "3. Register 2nd Student\n";
-    cout << "4. Reset 1st Student's Courses\n";
-    cout << "5. Display 2nd Student's Data\n";
-
-    cout << "4. Exit\n";
-}
-
 string enterName()
 {
     string name;
@@ -236,6 +223,7 @@ string enterName()
         try {
             cout << "Enter new student name: ";
             getline(cin, name);
+            cout << "\n" << endl;
             break;
         }
         catch (const exception& e) {
@@ -254,6 +242,7 @@ string enterCourse()
         try {
             cout << "Enter course name: ";
             getline(cin, course);
+            cout << "\n" << endl;
             break;
         }
         catch (const exception& e) {
@@ -267,14 +256,14 @@ string* enterCourses(int& numCourses) {
     numCourses = 0;
     string* courses = nullptr;
     string course;
-    char choice;
+    string choice;
 
     while (true) {
-        cout << "Enter another course? (Y or N): ";
-        cin >> choice;
-        cin.ignore();
+        cout << "Enter a new course? (Y or N): ";
+        getline(cin, choice);
 
-        if (choice == 'y' || choice == 'Y') {
+        // Accept only a single 'y' or 'Y'
+        if (choice == "y" || choice == "Y") {
             cout << "Enter course name: ";
             getline(cin, course);
 
@@ -294,7 +283,8 @@ string* enterCourses(int& numCourses) {
             courses = newCourses;
             numCourses++;
         }
-        else if (choice == 'n' || choice == 'N') {
+        // Accept only a single 'n' or 'N'
+        else if (choice == "n" || choice == "N") {
             break;
         }
         else {
@@ -311,39 +301,40 @@ int main()
     do
     {
         int numCourses = 0;
-        cout << "Input first Student info \n";
-        cout << "-----------------------\n";
+        printf("\x1B[94mInput first Student info \n-----------------------\n\n\033[0m");
         Student firstStudent = testStudentClass(numCourses);
-        cout << "\n Display first Student info \n";
-        cout << "-----------------------\n\n";
+
+        printf("\x1B[94m\n Display first Student info \n-----------------------\n\n\033[0m");
         displayStudent(firstStudent);
-        cout << "\n Create Second Student\n";
-        cout << "-----------------------\n\n";
+
+        printf("\x1B[94m\n Create Second Student\n-----------------------\n\n\033[0m");
         Student secondStudent = AskForSecondStudent(numCourses, firstStudent);
-        cout << "\n Display Second Student\n";
-        cout << "-----------------------\n\n";
+
+        printf("\x1B[94m\n Display Second Student\n-----------------------\n\n\033[0m");
         displayStudent(secondStudent);
-        cout << "\n Reset Courses and Display First Student\n";
-        cout << "-----------------------\n\n";
+
+        printf("\x1B[94m\n Reset Courses and Display First Student\n-----------------------\n\n\033[0m");
         resetCourses(firstStudent);
         displayStudent(firstStudent);
-        cout << "\n Show deep copy took place by showing second student's info\n";
-        cout << "-----------------------\n\n";
+
+        printf("\x1B[94m\n Show deep copy took place by showing second student's info\n-----------------------\n\n\033[0m");
         displayStudent(secondStudent);
 
         Student thirdStudent;
-		thirdStudent = secondStudent; // Using overloaded << operator to assign secondStudent to thirdStudent
+        thirdStudent = secondStudent; // Using overloaded << operator to assign secondStudent to thirdStudent
 
-        cout << "\nThird student after assignment (third = second):\n";
-        cout << "------------------------------------------------\n";
+        printf("\x1B[94m\nThird student after assignment (third = second):\n------------------------------------------------\n\033[0m");
         //displayStudent(thirdStudent);
-		cout << thirdStudent; // Using overloaded << operator to print thirdStudent
+        cout << "\n" << thirdStudent; // Using overloaded << operator to print thirdStudent
 
+        string restartInput;
         cout << "\nWould you like to restart the sequence? (Y to restart, any other key to exit): ";
-        if (!(cin >> restart))
+        getline(cin, restartInput);
+
+        if (restartInput == "y" || restartInput == "Y")
+            restart = 'Y';
+        else
             restart = 'N';
-        cin.ignore(numeric_limits<streamsize>::max(), '\n'); //Used AI for this line
-        cout << "\n";
     } while (restart == 'y' || restart == 'Y');
 
     cout << "Program exiting.\n";
