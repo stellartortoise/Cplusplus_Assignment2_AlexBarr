@@ -35,11 +35,14 @@ public:
         printf("\x1B[93m[String constructor] Created student with name='%s' (Student %d)\033[0m\t\t\n", name.c_str(), studentNumber);
     }
 
-	/// Constructor with name and student number
-    Student(const string& studentName, int number)
-        : name(studentName), numCourses(0), courseList(nullptr), studentNumber(number)
+    Student(const string& studentName, int courses)
+        : name(studentName), numCourses(courses), courseList(nullptr), studentNumber(0)
     {
-        printf("\x1B[93m[String constructor] Created student with name='%s' (Student %d)\033[0m\t\t\n", name.c_str(), studentNumber);
+        if (numCourses > 0)
+        {
+            courseList = new string[numCourses]; // Does not need to be a pointer here because we just need to make sure this variable is the right size
+        }
+        printf("\x1B[93m[String, Courses constructor] Created student with name='%s' who has been assigned %d courses\033[0m\t\t\n", name.c_str(), courses);
     }
 
 	/// Constructor with name and course count and student number
@@ -50,11 +53,12 @@ public:
         {
 			courseList = new string[numCourses]; // Does not need to be a pointer here because we just need to make sure this variable is the right size
         }
+        printf("\x1B[93m[String, Courses, Number constructor] Created student with name='%s' (Student %d) who has been assigned %d courses\033[0m\t\t\n", name.c_str(), studentNumber, courses);
     }
 
 	/// Constructor with name, course count, and course list and student number
-    Student(const string& studentName, int size, const string* courseList, int number)
-        : name(studentName), numCourses(size), courseList(nullptr), studentNumber(number)
+    Student(const string& studentName, int courses, const string* courseList, int number)
+        : name(studentName), numCourses(courses), courseList(nullptr), studentNumber(number)
     {
         if (numCourses > 0 && courseList != nullptr)
         {
@@ -66,6 +70,7 @@ public:
             }
                 
         }
+        printf("\x1B[93m[String, Courses, Course List, Number constructor] Created student with name='%s' (Student %d) who has been assigned %d courses\033[0m\t\t\n", name.c_str(), studentNumber, courses);
     }
 
     /// Copy constructor
@@ -230,7 +235,7 @@ void displayStudent(const Student& s)
     s.print();
 }
 
-Student testStudentClass(int &numCourses, int studentNumber)
+Student createStudentFromInput(int &numCourses, int studentNumber)
 {
     string name = enterName();
     // enterCourses returns a dynamically allocated array and sets numCourses
@@ -329,6 +334,21 @@ string* enterCourses(int& numCourses) {
     return courses;
 }
 
+// Function to demonstrate printf output for methods not called in main
+void showUnusedDebugOutput()
+{
+    printf("\x1B[92m--- Demonstrating unused debug output ---\033[0m\n");
+
+    Student sA("Alice");
+    
+    Student sB("Bob", 3);
+    sB.addCourse("Math");
+    sB.addCourse("Science");
+    sB.addCourse("History");
+
+    printf("\x1B[92m--- End of unused debug output ---\033[0m\n");
+}
+
 int main()
 {
 	int studentCounter = 1;
@@ -338,7 +358,7 @@ int main()
     {
         int numCourses = 0;
         printf("\x1B[94mInput first Student info \n-----------------------\n\n\033[0m");
-        Student firstStudent = testStudentClass(numCourses, studentCounter);
+        Student firstStudent = createStudentFromInput(numCourses, studentCounter);
 		studentCounter++;
 
         printf("\x1B[94m\n Display first Student info \n-----------------------\n\n\033[0m");
@@ -359,8 +379,8 @@ int main()
         displayStudent(secondStudent);
 
         Student thirdStudent;
-        thirdStudent = secondStudent; // Using overloaded << operator to assign secondStudent to thirdStudent
-		setNumber(thirdStudent, studentCounter); // Increment student number for third student
+        thirdStudent = secondStudent; // Using overloaded = operator to assign secondStudent to thirdStudent
+		setNumber(thirdStudent, studentCounter); // Set third student's number to studentCounter which has already been incremented
 
         printf("\x1B[94m\nThird student after assignment (third = second):\n------------------------------------------------\n\033[0m");
         cout << "\n" << thirdStudent; // Using overloaded << operator to print thirdStudent
@@ -381,6 +401,8 @@ int main()
 
     cout << "Program exiting.\n";
 	studentCounter = 1; // Reset student counter for potential future runs
+
+	showUnusedDebugOutput();
 
     return 0;
 }
